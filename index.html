@@ -1,0 +1,154 @@
+<html>
+<head>
+	<style>
+		#game > .row { width:100%;overflow:none }
+		#game > .row div { width: 33.3333%; float:left; }
+		#game button { height: 100px; width:100%; font-size:2em; color:blue;font-weight:400 }
+		#resetButton { width:100%; height:100px; background-color:Gray;color:white;font-weight:bold;font-size:2em; }
+		#controls > div { width:100%; font-size:1.5em; }
+		#controls label { display:inline-block; padding:10px; width: 30%; }
+		#controls input { margin-right:10px; }
+	</style>
+</head>
+<body>
+
+<div id="game">
+	<div class="row">
+		<div><button></button></div>
+		<div><button></button></div>
+		<div><button></button></div>
+	</div>
+	<div class="row">
+		<div><button></button></div>
+		<div><button></button></div>
+		<div><button></button></div>
+	</div>
+	<div class="row">
+		<div><button></button></div>
+		<div><button></button></div>
+		<div><button></button></div>
+	</div>
+</div>
+<div id="controls">
+	<div>
+		<label><input type="radio" name="level" /><span>Low</span></label>
+		<label><input type="radio" name="level" checked="checked" /><span>Medium</span></label>
+		<label><input type="radio" name="level" /><span>Hard</span></label>
+	</div>
+	<button id="resetButton">Reset game</button>
+</div>
+
+</body>
+</html>
+<script>
+
+;(function(){
+
+var winnings = [
+	[0,1,2], [3,4,5], [6,7,8],
+	[0,3,6], [1,4,7], [2,5,8],
+	[0,4,8], [2,4,6]
+];
+
+registerListeners();
+resetGame();
+
+
+
+
+	function registerListeners() {
+		var game = document.getElementById("game");
+		var btns = game.getElementsByTagName("button");
+		for(var i=0;i<btns.length;i++){
+		   btns[i].onclick = button_onclick;
+		}
+		document.getElementById("resetButton").onclick = resetGame;
+	}
+	function lockGame() {
+		var game = document.getElementById("game");
+		var btns = game.getElementsByTagName("button");
+		for(var i=0;i<btns.length;i++){
+			btns[i].disabled = 'disabled';
+		}
+	}
+	function resetGame() {
+		var game = document.getElementById("game");
+		var btns = game.getElementsByTagName("button");
+		for(var i=0;i<btns.length;i++){
+			btns[i].innerText = "";
+			btns[i].disabled = null;
+		}
+	}
+	function buttonsWith(token) {
+		var result = [];
+		var game = document.getElementById("game");
+		var btns = game.getElementsByTagName("button");
+		for(var i=0;i<btns.length;i++){
+			if(btns[i].innerText === token) {
+				result.push(i);
+			}
+		}
+		return result;
+	}
+	function containsAll(array, test) {
+		if(array.length<test.length) return false;
+		var arrayIndex = 0;
+		for(var i=0;i<test.length;i++){
+			while(array[arrayIndex] < test[i]){
+				arrayIndex++;
+				if(arrayIndex>=array.length) return false;
+			}
+			if(array[arrayIndex] !== test[i]) return false;
+		}
+		return true;
+	}
+	function isWin(userButtons){
+		for(var i=0;i<winnings.length;i++){
+			if(containsAll(userButtons, winnings[i])) 
+				return true;
+		}
+		return false;
+	}
+	function isGameOver(){
+		//console.log('Checking game state');
+		var userButtons = buttonsWith('X');
+		if(isWin(userButtons)){
+			console.log('Player has won!');
+			lockGame();
+			return true;
+		}
+		var computerButtons = buttonsWith('O');
+		if(isWin(computerButtons)){
+			console.log('Computer has won!');
+			lockGame();
+			return true;
+		}
+		return false;
+	}
+
+	function computerMove() {
+		var game = document.getElementById("game");
+		var btns = game.getElementsByTagName("button");
+		for(var i=0;i<btns.length;i++) {
+			if(btns[i].innerText === '') {
+				console.log('Computer move');
+				btns[i].innerText = "O";
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function button_onclick() {
+		this.innerText = "X";
+		this.disabled="disabled";
+		if(isGameOver()) return;
+		if(!computerMove()) {
+			console.log('game is a draw!');
+		}
+		isGameOver();
+	}
+
+
+}());
+</script>
